@@ -1,15 +1,25 @@
 
 body {
-  background: #404040;
-  color: #f8f8f8;
   font: 500 20px/26px 'Helvetica Neue', Helvetica, Arial, Sans-serif;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
 }
 
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 .sidebar {
   width: 33.3333%;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  border-right: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 .mapWrapper {
@@ -21,7 +31,56 @@ body {
   bottom: 0;
 }
 
+.heading {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  height: 60px;
+  line-height: 60px;
+  padding: 0 10px;
+}
 
+.stationList {
+  height: 100%;
+  overflow: auto;
+  padding-bottom: 60px;
+}
+
+.stationList li {
+  display: block;
+  border-bottom: 1px solid #eee;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.stationList li:last-child { border-bottom: none; }
+
+
+.stationList li:hover { background-color: lightblue; }
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 3px;
+  border-left: 0;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-track {
+  background: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: lightblue;
+}
+
+.clearfix { display: block; }
+
+.clearfix::after {
+  content: '.';
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
 
 
 /*.App {

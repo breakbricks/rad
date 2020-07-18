@@ -4,11 +4,18 @@ import "../App.css";
 export const Sidebar = (props) => {
     return <div className='sidebar'>
 
-        <h1>RAD</h1>
+        <div className='heading'>
+            <h1>Indego stations</h1>
+        </div>
 
-        <p>indego station info here? </p>
 
-        {props.children}
+
+        <div className="stationList">
+
+            {props.children}
+
+        </div>
 
     </div>
 }
+

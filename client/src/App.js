@@ -105,7 +105,7 @@ export const App = () => {
         {stations ? <ul>{
           stations.map((arr) => (
             //JSON.stringify(stations)
-            <li>
+            <li key={arr.properties.id}>
               Station Name: {arr.properties.name}
               <br></br>
               Station Status: {arr.properties.kioskStatus}
