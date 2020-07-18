@@ -71,6 +71,7 @@ export const App = () => {
             'source': 'points',
             'layout': {
               'icon-image': 'custom-marker',
+              "icon-allow-overlap": true
             }
           });
         }
@@ -89,6 +90,7 @@ export const App = () => {
         //initializeMap({ setMap, mapContainer });
       })
     // if (!map) initializeMap({ setMap, mapContainer });
+
   }, []);
 
   useEffect(() => {
@@ -100,14 +102,21 @@ export const App = () => {
   return (
     <div>
       <Sidebar>
-
-        {stations ? <p>{
-
+        {stations ? <ul>{
           stations.map((arr) => (
             //JSON.stringify(stations)
-            arr.properties.name
-
-          ))} </p> : "none"}
+            <li>
+              Station Name: {arr.properties.name}
+              <br></br>
+              Station Status: {arr.properties.kioskStatus}
+              <br></br>
+              Bikes Available: {arr.properties.bikesAvailable}
+              <br></br>
+              Docks Available: {arr.properties.docksAvailable}
+              <br></br>
+              Electric Bikes: {arr.properties.electricBikesAvailable}
+            </li>
+          ))} </ul> : "none"}
 
       </Sidebar>
       <div className="mapWrapper">
