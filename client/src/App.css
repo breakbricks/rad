@@ -1,21 +1,13 @@
 /* Marker tweaks */
-.mapboxgl-popup-close-button {
-  display: none;
-}
 
 .mapboxgl-popup-content {
   font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
   padding: 0;
   width: 180px;
 }
-
-.mapboxgl-popup-content-wrapper {
-  padding: 1%;
-}
-
-.mapboxgl-popup-content h3 {
-  background: lightsteelblue;
-  color: #fff;
+.mapboxgl-popup-content h2 {
+  padding: 2px;
+  color: cornflowerblue;
 }
 
 body {
@@ -78,6 +70,7 @@ body {
 .stationList li:last-child { border-bottom: none; }
 
 
+.stationList li.active,
 .stationList li:hover { background-color: lightblue; }
 
 ::-webkit-scrollbar {

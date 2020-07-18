@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from "./components/Sidebar";
+import icon from "./assets/icon.png"
 import './App.css';
 
 //core Mapbox
@@ -30,14 +31,10 @@ export const App = () => {
   const [filtered, setFiltered] = useState();
   const mapContainer = useRef(null);
 
-
-
-
-
   const initializeMap = ({ setMap, mapContainer }) => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/light-v10", // stylesheet location
+      style: "mapbox://styles/estheroids/ckcrt64ic070x1imlwhtpeh38", // stylesheet location
       center: [-75.1652, 39.9526],
       zoom: 12
     });
@@ -45,19 +42,35 @@ export const App = () => {
     const directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
       unit: 'metric',
-      profile: 'mapbox/cycling'
+      profile: 'mapbox/cycling',
+      countries: 'us',
+      bbox: [-75.375687, 39.822419, -75.011422, 40.060638]
     });
 
     map.addControl(directions, 'top-left');
 
-    console.log(stations);
+    const geolocate = new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true
+    });
+
+    map.addControl(geolocate);
+    geolocate.on('geolocate', () => {
+      console.log('geolocated.')
+    })
+
+
+    //console.log(stations);
 
     map.on("load", () => {
       setMap(map);
       map.resize();
 
       map.loadImage(
-        'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+        // 'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+        icon,
         function (error, image) {
           if (error) throw error;
           map.addImage('custom-marker', image);
@@ -96,7 +109,7 @@ export const App = () => {
         if (popUps[0]) popUps[0].remove();
         const popup = new mapboxgl.Popup({ closeOnClick: false })
           .setLngLat(current.geometry.coordinates)
-          .setHTML(`<h3>${current.properties.name}</h3>
+          .setHTML(`<h2>${current.properties.name}</h2>
             <p>
             Docks Available: ${JSON.stringify(current.properties.docksAvailable)}
             Bikes Available: ${JSON.stringify(current.properties.bikesAvailable)}
@@ -104,19 +117,45 @@ export const App = () => {
           .addTo(map);
       }
 
+      const listItem = document.getElementsByClassName('listItem');
+      console.log(listItem);
+
       map.on('click', function (e) {
-        /* Determine if a feature in the "indegostations" layer exists at that point. */
+        // check if a feature in the "indegostations" layer exists
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['indegostations']
         });
 
-        /* If yes, then: */
+        // if yes, then: 
         if (features.length) {
           const clickedMarker = features[0];
-          /* Fly to the point */
+          // fly to the point
           flyToStation(clickedMarker);
-          /* Close all other popups and display popup for clicked station */
+          // close all other popups and show popup for clicked marker on map
           createPopUp(clickedMarker);
+
+
+          // DOESN'T WORK YET :( 
+          // GOAL: click on marker on map, scroll to corresponding listItem in the sidebar
+          const activeItem = document.getElementsByClassName('active');
+          if (activeItem[0]) {
+            activeItem[0].classList.remove('active');
+          }
+          const listItem = document.getElementById('listItem-' + clickedMarker.properties.id);
+          listItem.classList.add('active');
+
+          //figure out how to clear directions/ remove route
+          /*
+          // remove the layer if it exists
+          const removeRoute = () => {
+          if (map.getSource('route')) {
+          map.removeLayer('route');
+          map.removeSource('route');
+          document.getElementById('').innerHTML = '';
+          } else {
+        return;
+      }
+    }*/
         }
       });
 
@@ -141,23 +180,16 @@ export const App = () => {
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
-
-
   }, [filtered])
-
-
-
-
 
 
   return (
     <div>
       <Sidebar>
-
         {filtered ? <div> {
           filtered.map((arr) => (
             //JSON.stringify(stations)
-            <li key={arr.properties.id}>
+            <li key={arr.properties.id} id={`listItem-${arr.properties.id}`} className="listItem">
               Station Name: {arr.properties.name}
               <br></br>
               Station Status: {arr.properties.kioskStatus}
