@@ -33,6 +33,14 @@ export const App = () => {
         zoom: 12
       });
 
+      const directions = new MapboxDirections({
+        accessToken: mapboxgl.accessToken,
+        unit: 'metric',
+        profile: 'mapbox/cycling'
+      });
+
+      map.addControl(directions, 'top-left');
+
       map.on("load", () => {
         setMap(map);
         map.resize();
@@ -47,7 +55,6 @@ export const App = () => {
   return (
     <div>
       <Sidebar> {stations ? <p>{JSON.stringify(stations)}</p> : ""}} </Sidebar>
-
       <div className="mapWrapper">
         <div ref={el => (mapContainer.current = el)} style={containercss} />
       </div>
