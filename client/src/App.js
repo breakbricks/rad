@@ -56,9 +56,6 @@ export const App = () => {
           map.addImage('custom-marker', image);
 
           //feed indego station geojson data here
-
-
-          // Add a GeoJSON source with 2 points
           map.addSource('points', {
             'type': 'geojson',
             'data': {
@@ -83,10 +80,6 @@ export const App = () => {
   };
 
   useEffect(() => {
-
-
-
-
     fetch("https://kiosks.bicycletransit.workers.dev/phl/")
       .then(res => res.json())
       .then(data => {
@@ -95,14 +88,11 @@ export const App = () => {
         //console.log(stations);
         //initializeMap({ setMap, mapContainer });
       })
-
     // if (!map) initializeMap({ setMap, mapContainer });
-
   }, []);
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
-
   }, [stations])
 
 
