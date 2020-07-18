@@ -1,3 +1,22 @@
+/* Marker tweaks */
+.mapboxgl-popup-close-button {
+  display: none;
+}
+
+.mapboxgl-popup-content {
+  font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
+  padding: 0;
+  width: 180px;
+}
+
+.mapboxgl-popup-content-wrapper {
+  padding: 1%;
+}
+
+.mapboxgl-popup-content h3 {
+  background: lightsteelblue;
+  color: #fff;
+}
 
 body {
   font: 500 20px/26px 'Helvetica Neue', Helvetica, Arial, Sans-serif;
@@ -29,6 +48,10 @@ body {
   width: 66.6666%;
   top: 0;
   bottom: 0;
+}
+
+.padbtm {
+  padding-bottom:50px;
 }
 
 .heading {

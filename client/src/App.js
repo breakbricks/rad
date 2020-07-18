@@ -30,6 +30,10 @@ export const App = () => {
   const [filtered, setFiltered] = useState();
   const mapContainer = useRef(null);
 
+
+
+
+
   const initializeMap = ({ setMap, mapContainer }) => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
@@ -69,7 +73,7 @@ export const App = () => {
 
           // Add a symbol layer
           map.addLayer({
-            'id': 'points',
+            'id': 'indegostations',
             'type': 'symbol',
             'source': 'points',
             'layout': {
@@ -79,6 +83,42 @@ export const App = () => {
           });
         }
       );
+
+      const flyToStation = (current) => {
+        map.flyTo({
+          center: current.geometry.coordinates,
+          zoom: 15
+        })
+      }
+
+      const createPopUp = (current) => {
+        const popUps = document.getElementsByClassName('mapboxgl-popup');
+        if (popUps[0]) popUps[0].remove();
+        const popup = new mapboxgl.Popup({ closeOnClick: false })
+          .setLngLat(current.geometry.coordinates)
+          .setHTML(`<h3>${current.properties.name}</h3>
+            <p>
+            Docks Available: ${JSON.stringify(current.properties.docksAvailable)}
+            Bikes Available: ${JSON.stringify(current.properties.bikesAvailable)}
+            </p>`)
+          .addTo(map);
+      }
+
+      map.on('click', function (e) {
+        /* Determine if a feature in the "indegostations" layer exists at that point. */
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['indegostations']
+        });
+
+        /* If yes, then: */
+        if (features.length) {
+          const clickedMarker = features[0];
+          /* Fly to the point */
+          flyToStation(clickedMarker);
+          /* Close all other popups and display popup for clicked station */
+          createPopUp(clickedMarker);
+        }
+      });
 
     });
   };
@@ -101,7 +141,12 @@ export const App = () => {
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
+
+
   }, [filtered])
+
+
+
 
 
 
@@ -123,7 +168,7 @@ export const App = () => {
               <br></br>
               Electric Bikes: {arr.properties.electricBikesAvailable}
             </li>
-          ))} </div> : "none"}
+          ))} </div> : "error"}
 
       </Sidebar>
       <div className="mapWrapper">
