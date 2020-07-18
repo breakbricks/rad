@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from "./components/Sidebar";
 import './App.css';
 
-//core Mapbox API
+//core Mapbox
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 //import MapboxDirections 
+//https://www.npmjs.com/package/@mapbox/mapbox-gl-directions
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 
@@ -26,6 +27,7 @@ const containercss = {
 export const App = () => {
   const [map, setMap] = useState(null);
   const [stations, setStations] = useState();
+  const [filtered, setFiltered] = useState();
   const mapContainer = useRef(null);
 
   const initializeMap = ({ setMap, mapContainer }) => {
@@ -45,6 +47,7 @@ export const App = () => {
     map.addControl(directions, 'top-left');
 
     console.log(stations);
+
     map.on("load", () => {
       setMap(map);
       map.resize();
@@ -60,7 +63,7 @@ export const App = () => {
             'type': 'geojson',
             'data': {
               'type': 'FeatureCollection',
-              'features': stations
+              'features': filtered
             }
           });
 
@@ -86,24 +89,28 @@ export const App = () => {
       .then(data => {
         //console.log(data);
         setStations(data['features'])
+        //filter by electric bikes available
+        setFiltered(
+          data['features'].filter(s => s.properties.electricBikesAvailable > 0)
+        )
         //console.log(stations);
         //initializeMap({ setMap, mapContainer });
       })
     // if (!map) initializeMap({ setMap, mapContainer });
-
   }, []);
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
-  }, [stations])
+  }, [filtered])
 
 
 
   return (
     <div>
       <Sidebar>
-        {stations ? <ul>{
-          stations.map((arr) => (
+
+        {filtered ? <div> {
+          filtered.map((arr) => (
             //JSON.stringify(stations)
             <li key={arr.properties.id}>
               Station Name: {arr.properties.name}
@@ -116,7 +123,7 @@ export const App = () => {
               <br></br>
               Electric Bikes: {arr.properties.electricBikesAvailable}
             </li>
-          ))} </ul> : "none"}
+          ))} </div> : "none"}
 
       </Sidebar>
       <div className="mapWrapper">
