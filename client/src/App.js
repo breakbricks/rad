@@ -19,6 +19,35 @@ import buffer from '@turf/buffer';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY;
 
+// add toggle button - view filtered (by status, electric bike availability etc.)/ all stations
+
+// GENERATE BUFFER POLYGON (~5 minute walk)
+// turf.buffer(point, 500, {units: 'meters'});
+// CHECK WHETHER THERE ARE MARKER(S) IS WITHIN POLYGON
+// https://turfjs.org/docs/#booleanPointInPolygon 
+// turf.booleanPointInPolygon(pt, poly);
+// SORT STATIONS BY DISTANCE 
+// turf.distance(from, to, options);
+/* const options = { units: 'meters' };
+  stores.features.forEach(function(store) {
+  Object.defineProperty(store.properties, 'distance', {
+    value: turf.distance(searchResult, filtered.geometry, options),
+    writable: true,
+    enumerable: true,
+    configurable: true
+  });
+}); 
+filtered.sort(function(a, b) {
+  if (a.properties.distance > b.properties.distance) {
+    return 1;
+  }
+  if (a.properties.distance < b.properties.distance) {
+    return -1;
+  }
+  return 0; // a must be equal to b
+});
+*/
+
 const containercss = {
   width: "66.6666vw",
   height: "100vh"
@@ -60,7 +89,6 @@ export const App = () => {
     geolocate.on('geolocate', () => {
       console.log('geolocated.')
     })
-
 
     //console.log(stations);
 
