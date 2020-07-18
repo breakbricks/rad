@@ -6,13 +6,9 @@ export const Sidebar = (props) => {
 
         <h1>RAD</h1>
 
-        <p>
-            indego station info here?
+        <p>indego station info here? </p>
 
-            {props.children}
-
-
-        </p>
+        {props.children}
 
     </div>
 }
