@@ -1,6 +1,7 @@
 {
   "name": "rad-app",
   "version": "0.1.0",
+  "proxy": "http://localhost:3001",
   "private": true,
   "dependencies": {
     "@mapbox/mapbox-gl-directions": "^4.0.3",

@@ -21,6 +21,8 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_KEY;
 
 // add toggle button - view filtered (by status, electric bike availability etc.)/ all stations
 
+// TOGGLE SHOW/ HIDE layers https://docs.mapbox.com/mapbox-gl-js/example/toggle-layers/
+
 // GENERATE BUFFER POLYGON (~5 minute walk)
 // turf.buffer(point, 500, {units: 'meters'});
 // CHECK WHETHER THERE ARE MARKER(S) IS WITHIN POLYGON
@@ -58,7 +60,9 @@ export const App = () => {
   const [map, setMap] = useState(null);
   const [stations, setStations] = useState();
   const [filtered, setFiltered] = useState();
+  //const [crashes, setCrashes] = useState();
   const mapContainer = useRef(null);
+  const [route, setRoute] = useState([])
 
   const initializeMap = ({ setMap, mapContainer }) => {
     const map = new mapboxgl.Map({
@@ -130,6 +134,8 @@ export const App = () => {
           center: current.geometry.coordinates,
           zoom: 15
         })
+        setRoute(oldArray => [...oldArray, current]);
+
       }
 
       const createPopUp = (current) => {
@@ -143,10 +149,12 @@ export const App = () => {
             Bikes Available: ${JSON.stringify(current.properties.bikesAvailable)}
             </p>`)
           .addTo(map);
+
+
       }
 
       const listItem = document.getElementsByClassName('listItem');
-      console.log(listItem);
+      //console.log(listItem);
 
       map.on('click', function (e) {
         // check if a feature in the "indegostations" layer exists
@@ -204,7 +212,17 @@ export const App = () => {
         //initializeMap({ setMap, mapContainer });
       })
     // if (!map) initializeMap({ setMap, mapContainer });
+    fetch("/api/test").then(response => response.json()).then(res => console.log(res)).catch(err => console.log(err))
   }, []);
+
+  /*
+  try {
+    let [setStations, setCrashes] = await Promise.all([
+      fetch("https://kiosks.bicycletransit.workers.dev/phl/"),
+      fetch("https://phl.carto.com/api/v2/sql?q=SELECT * FROM crash_data_collision_crash_2013_2017_vz WHERE bicycle_count > 0")
+    ])
+  }*/
+
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
@@ -236,6 +254,5 @@ export const App = () => {
       </div>
     </div>
   )
-
 
 }
