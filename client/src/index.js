@@ -3,11 +3,17 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { App } from './App';
 import * as serviceWorker from './serviceWorker';
+import { Auth0Provider } from "@auth0/auth0-react";
 
 ReactDOM.render(
   //<React.StrictMode>
-  <App />,
-  //</React.StrictMode>,
+  <Auth0Provider
+    domain="ecn2318.us.auth0.com"
+    clientId="MzMqMPt39EJtR3PlNTxACcJFnwndUtOO"
+    redirectUri={window.location.origin}
+  >
+    <App />
+  </Auth0Provider>,
   document.getElementById('root')
 );
 

@@ -23,11 +23,16 @@ body {
   box-sizing: border-box;
 }
 
+.nav {
+  height:8%;
+  width: 100%;
+  background-color: blue;
+}
+
 .sidebar {
   width: 33.3333%;
   position: absolute;
-  height: 100%;
-  top: 0;
+  height: 80%;
   left: 0;
   overflow: hidden;
   border-right: 1px solid rgba(0, 0, 0, 0.25);
@@ -46,16 +51,10 @@ body {
   padding-bottom:50px;
 }
 
-.heading {
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  height: 60px;
-  line-height: 60px;
-  padding: 0 10px;
-}
-
 .stationList {
   height: 100%;
+  clear: both;
+  margin-top: 10%;
   overflow: auto;
   padding-bottom: 60px;
 }
