@@ -5,6 +5,14 @@ import { App } from './App';
 import * as serviceWorker from './serviceWorker';
 import { Auth0Provider } from "@auth0/auth0-react";
 
+
+const containercss = {
+  width: "66.6666vw",
+  height: "100vh"
+  // position: "absolute"
+};
+
+
 ReactDOM.render(
   //<React.StrictMode>
   <Auth0Provider
