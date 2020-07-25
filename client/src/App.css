@@ -1,3 +1,9 @@
+img {
+  width: 250px;
+  height: 250px;
+  padding: 25px;
+}
+
 /* Marker tweaks */
 
 .mapboxgl-popup-content {
