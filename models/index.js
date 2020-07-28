@@ -1,4 +1,4 @@
 module.exports = {
     User: require("./user"),
-    // Direction: require("./direction")
+    Direction: require("./direction")
 };

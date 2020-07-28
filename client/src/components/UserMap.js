@@ -31,7 +31,7 @@ export const UserMap = () => {
     const initializeMap = ({ setMap, mapContainer }) => {
         const map = new mapboxgl.Map({
             container: mapContainer.current,
-            style: "mapbox://styles/estheroids/ckcrt64ic070x1imlwhtpeh38", // stylesheet location
+            style: "mapbox://styles/estheroids/ckcrt6ss80i1t1inpoxsfpjdm", // stylesheet location
             center: [-75.1652, 39.9526],
             zoom: 12
         });
