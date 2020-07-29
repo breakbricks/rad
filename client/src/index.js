@@ -6,18 +6,11 @@ import * as serviceWorker from './serviceWorker';
 import { Auth0Provider } from "@auth0/auth0-react";
 
 
-const containercss = {
-  width: "66.6666vw",
-  height: "100vh"
-  // position: "absolute"
-};
-
-
 ReactDOM.render(
   //<React.StrictMode>
   <Auth0Provider
-    domain="ecn2318.us.auth0.com"
-    clientId="MzMqMPt39EJtR3PlNTxACcJFnwndUtOO"
+    domain={process.env.REACT_APP_AUTH0_DOMAIN}
+    clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
     redirectUri={window.location.origin}
   >
     <App />

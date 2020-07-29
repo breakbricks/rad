@@ -39,13 +39,18 @@ const geojsonLine = {
 */
 
 //do you have to use loc?
+//https://auth0.com/docs/users/normalized/auth0/identify-users
+// https://auth0.com/docs/tokens/guides/get-id-tokens
+
 
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const directionSchema = new Schema({
-    user: { type: String },
-    auth0id: { type: String },
+const idgrouteSchema = new Schema({
+    //auth0 identify users with: user_id
+    //"user_id": "usr_5457edea1b8f33391a000004",
+    //{identity provider id}|{unique id in the provider}
+    user_id: { type: String },
     date: {
         type: Date,
         default: Date.now
@@ -63,6 +68,6 @@ const directionSchema = new Schema({
 
 });
 
-const Direction = mongoose.model("Direction", directionSchema);
+const IDGRoute = mongoose.model("IDGRoute", idgrouteSchema);
 
-module.exports = Direction;
+module.exports = IDGRoute;
