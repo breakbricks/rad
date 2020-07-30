@@ -22,6 +22,13 @@ module.exports = {
       .then((dbModel) => res.json(dbModel))
       .catch((err) => res.status(422).json(err));
   },
+  findRoutes: function (req, res) {
+    db.IDGRoute.find({
+      user_id: req.body.user_id,
+    })
+      .then((dbModel) => res.json(dbModel))
+      .catch((err) => res.status(422).json(err));
+  },
   //find by user_id and route_id
   findById: function (req, res) {
     db.IDGRoute.findById(req.params.id)

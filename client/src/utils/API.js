@@ -39,8 +39,8 @@ export default {
   },
   // get all saved routes from database under user_id
   // display list of routes and info on sidebar, on click - display on map
-  getAllRoutes: function (user_id, data) {
-    return axios.get("/api/idg/" + user_id, data);
+  getAllRoutes: function (data) {
+    return axios.post("/api/idg/getroutes/", data);
   },
   // delete route from database under user_id
   deleteRoute: function (user_id, id) {

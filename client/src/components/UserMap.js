@@ -33,6 +33,7 @@ export const UserMap = () => {
   //const [crashes, setCrashes] = useState();
   const mapContainer = useRef(null);
   const [route, setRoute] = useState([]);
+  const [exroutes, setExRoutes] = useState([]);
 
   const initializeMap = ({ setMap, mapContainer }) => {
     const map = new mapboxgl.Map({
@@ -159,6 +160,12 @@ export const UserMap = () => {
   };
 
   useEffect(() => {
+    API.getAllRoutes({
+      user_id: user.email,
+    }).then((res) => {
+      console.log(res.data);
+      setExRoutes(res.data);
+    });
     fetch("https://kiosks.bicycletransit.workers.dev/phl/")
       .then((res) => res.json())
       .then((data) => {
@@ -183,10 +190,31 @@ export const UserMap = () => {
     initializeMap({ setMap, mapContainer });
   }, [filtered]);
 
+  //call Mapbox Directions API
+  const callDirAPI = (origin, destination) => {
+    API.searchRouteDir(
+      `${origin[0]},${origin[1]}`,
+      `${destination[0]},${destination[1]}`
+    ).then((res) => {
+      //mapbox directions api result
+      console.log(res.data);
+    });
+  };
+
   return (
     <div>
       <div ref={(el) => (mapContainer.current = el)} style={styles} />
       <button onClick={() => submit()}>Save</button>
+      {exroutes.map((exroute, i) => (
+        <div
+          key={i}
+          onClick={() => callDirAPI(exroute.origin, exroute.destination)}
+        >
+          origin: {exroute.origin[0]},{exroute.origin[1]}
+          <br></br>
+          destination: {exroute.destination[0]},{exroute.destination[1]}
+        </div>
+      ))}
     </div>
   );
 };
