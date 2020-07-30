@@ -1,53 +1,52 @@
 import axios from "axios";
 
 export default {
+  // get user from auth0 and SAVE?
+  // https://auth0.com/docs/users/search/v3/get-users-endpoint // just for getting user info
+  // https://auth0.com/docs/tokens/guides/get-id-tokens // get userid!
+  // https://community.auth0.com/t/getting-currently-logged-user-in-web-api/6810/6
+  // You can get the ID of the user by querying the value of the NameIdentifier claim type
+  // Inside one of your API controller actions
+  //string userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+  //https://community.auth0.com/t/how-to-get-user-id-and-use-to-consume-endpoint/37766
+  //see Profile.js - get accessToken?
+  getLoggedInUserID: function () {},
 
-    // get user from auth0 and SAVE?
-    // https://auth0.com/docs/users/search/v3/get-users-endpoint // just for getting user info
-    // https://auth0.com/docs/tokens/guides/get-id-tokens // get userid!
-    // https://community.auth0.com/t/getting-currently-logged-user-in-web-api/6810/6
-    // You can get the ID of the user by querying the value of the NameIdentifier claim type
-    // Inside one of your API controller actions 
-    //string userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value; 
-    //https://community.auth0.com/t/how-to-get-user-id-and-use-to-consume-endpoint/37766
-    //see Profile.js - get accessToken? 
-    getLoggedInUserID: function () { },
+  saveCurrentUserID: function () {},
 
-    saveCurrentUserID: function () { },
+  // directions api - search coords
+  // https://docs.mapbox.com/api/navigation/#directions
 
-    // directions api - search coords
-    // https://docs.mapbox.com/api/navigation/#directions
+  //RETRIEVE DIRECTIONS
+  //GET - /directions/v5/{profile}/{coordinates}
+  //https://api.mapbox.com/directions/v5/mapbox/cycling/-122.42,37.78;-77.03,38.91?access_token=YOUR_MAPBOX_ACCESS_TOKEN
 
-    //RETRIEVE DIRECTIONS 
-    //GET - /directions/v5/{profile}/{coordinates}
-    //https://api.mapbox.com/directions/v5/mapbox/cycling/-122.42,37.78;-77.03,38.91?access_token=YOUR_MAPBOX_ACCESS_TOKEN
+  // click the map to set your origin and destination. first click/ second click
+  // save raw JSON response from your query
+  //https://docs.mapbox.com/playground/directions/?size=n_10_n
+  //&geometries=polyline6 or geojson - format of the returned geometry
 
-    // click the map to set your origin and destination. first click/ second click
-    // save raw JSON response from your query
-    //https://docs.mapbox.com/playground/directions/?size=n_10_n
-    //&geometries=polyline6 or geojson - format of the returned geometry
-
-    // orCoords - array? [-122.42, 37.78]
-    searchRouteDir: function (orCoords, deCoords) {
-        return axios.get(
-            `https://api.mapbox.com/directions/v5/mapbox/cycling/${orCoords};${deCoords}?geometries=geojson&steps=true&access_token=${process.env.REACT_APP_MAPBOX_KEY}
+  // orCoords - array? [-122.42, 37.78]
+  searchRouteDir: function (orCoords, deCoords) {
+    return axios.get(
+      `https://api.mapbox.com/directions/v5/mapbox/cycling/${orCoords};${deCoords}?geometries=geojson&steps=true&access_token=${process.env.REACT_APP_MAPBOX_KEY}
             `
-        )
-    },
-    // save route to database under user_id 
-    saveRoute: function (user_id, data) {
-        return axios.post("/api/idg/" + user_id, data)
-    },
-    // get all saved routes from database under user_id
-    // display list of routes and info on sidebar, on click - display on map
-    getAllRoutes: function (user_id, data) {
-        return axios.get("/api/idg/" + user_id, data);
-    },
-    // delete route from database under user_id
-    deleteRoute: function (user_id, id) {
-        return axios.delete("/api/idg/" + user_id + "/" + id);
-    }
-}
+    );
+  },
+  // save route to database with user_id
+  saveRoute: function (data) {
+    return axios.post("/api/idg/", data);
+  },
+  // get all saved routes from database under user_id
+  // display list of routes and info on sidebar, on click - display on map
+  getAllRoutes: function (user_id, data) {
+    return axios.get("/api/idg/" + user_id, data);
+  },
+  // delete route from database under user_id
+  deleteRoute: function (user_id, id) {
+    return axios.delete("/api/idg/" + user_id + "/" + id);
+  },
+};
 
 // https://api.mapbox.com/directions/v5/mapbox/cycling/-73.996%2C40.732%3B-73.991%2C40.735?alternatives=false&geometries=geojson&steps=false&access_token=ACCESS_TOKEN
 // -73.996,40.732;-73.991,40.735
@@ -129,6 +128,5 @@ export default {
 }
 
   */
-
 
 // -73.996,40.732;-73.991,40.735

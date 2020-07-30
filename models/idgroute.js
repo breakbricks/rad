@@ -1,4 +1,3 @@
-
 // How to define coords in schema - https://github.com/Automattic/mongoose/blob/master/test/model.querying.test.js#L1931
 //https://gist.github.com/aheckmann/5241574
 
@@ -42,30 +41,40 @@ const geojsonLine = {
 //https://auth0.com/docs/users/normalized/auth0/identify-users
 // https://auth0.com/docs/tokens/guides/get-id-tokens
 
-
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const idgrouteSchema = new Schema({
-    //auth0 identify users with: user_id
-    //"user_id": "usr_5457edea1b8f33391a000004",
-    //{identity provider id}|{unique id in the provider}
-    user_id: { type: String },
-    date: {
-        type: Date,
-        default: Date.now
-    },
-    origin: {
-        type: { type: String },
-        coordinates: { type: [Number], index: '2dsphere' },
-        name: { type: String }
-    },
-    destination: {
-        type: { type: String },
-        coordinates: { type: [Number], index: '2dsphere' },
-        name: { type: String }
-    }
+  //auth0 identify users with: user_id
+  //"user_id": "usr_5457edea1b8f33391a000004",
+  //{identity provider id}|{unique id in the provider}
+  user_id: { type: String },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  origin: { type: [Number] },
+  destination: { type: [Number] },
+  /*
+  //obj.routes[0].geometry.coordinates[0] ?
+  origin: {
+    type: { type: String },
+    coordinates: { type: [Number], index: "2dsphere" },
+    name: { type: String },
+  },
+  //obj.routes[0].geometry.coordinates[last in the array] ?
+  
+  destination: {
+    type: { type: String },
+    coordinates: { type: [Number], index: "2dsphere" },
+    name: { type: String },
+  },
+  //obj.routes[0].geometry.legs.duration
+  // duration in seconds
 
+  //obj.routes[0].geometry.legs.distance
+  // distance in meters
+  */
 });
 
 const IDGRoute = mongoose.model("IDGRoute", idgrouteSchema);
