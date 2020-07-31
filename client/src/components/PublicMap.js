@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Sidebar } from "./Sidebar";
 
 import "../App.css";
 //core Mapbox
@@ -84,7 +85,10 @@ export const PublicMap = () => {
 
   return (
     <div>
-      <div ref={(el) => (mapContainer.current = el)} style={styles} />
+      <Sidebar></Sidebar>
+      <div className="mapWrapper">
+        <div ref={(el) => (mapContainer.current = el)} style={styles} />
+      </div>
     </div>
   );
 };

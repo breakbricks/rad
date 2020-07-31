@@ -29,8 +29,7 @@ export default {
   // orCoords - array? [-122.42, 37.78]
   searchRouteDir: function (orCoords, deCoords) {
     return axios.get(
-      `https://api.mapbox.com/directions/v5/mapbox/cycling/${orCoords};${deCoords}?geometries=geojson&steps=true&access_token=${process.env.REACT_APP_MAPBOX_KEY}
-            `
+      `https://api.mapbox.com/directions/v5/mapbox/cycling/${orCoords};${deCoords}?geometries=geojson&steps=true&access_token=${process.env.REACT_APP_MAPBOX_KEY}`
     );
   },
   // save route to database with user_id

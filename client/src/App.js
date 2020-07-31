@@ -12,6 +12,14 @@ export const App = () => {
 
   return (
     <div>
+      {isAuthenticated ? <UserMap></UserMap> : <PublicMap></PublicMap>};
+    </div>
+  );
+};
+
+/*
+return (
+    <div>
       <Sidebar>
         <Profile></Profile>
       </Sidebar>
@@ -21,4 +29,4 @@ export const App = () => {
       ;
     </div>
   );
-};
+  */

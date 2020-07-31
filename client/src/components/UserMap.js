@@ -145,14 +145,44 @@ export const UserMap = () => {
     });
   };
 
+  /*
+  //https://github.com/mapbox/mapbox-gl-directions/blob/master/API.md
+  //To remove the route from the map, use removeRoute().
+  //removeRoute() - Remove the route line from the map style.
+  // remove the layer if it exists
+
+  const removeRoute = () => {
+    if (map.getSource("route")) {
+      map.removeLayer("route");
+      map.removeSource("route");
+      document.getElementById("calculated-line").innerHTML = "";
+    } else {
+      return;
+    }
+  }; */
+
   const submit = () => {
+    console.log(route);
     try {
       API.saveRoute({
         user_id: user.email,
+        ostation_id: route[0].properties.id,
+        ostation_name: route[0].properties.name,
+        ostation_address: route[0].properties.addressStreet,
         origin: route[0].geometry.coordinates,
-        destination: route[1].geometry.coordinates,
+        //make last in the array the destination?
+        dstation_id: route[route.length - 1].properties.id,
+        dstation_name: route[route.length - 1].properties.name,
+        dstation_address: route[route.length - 1].properties.addressStreet,
+        destination: route[route.length - 1].geometry.coordinates,
       }).then((res) => {
         alert(JSON.stringify(res));
+        API.getAllRoutes({
+          user_id: user.email,
+        }).then((res) => {
+          console.log(res.data);
+          setExRoutes(res.data);
+        });
       });
     } catch (err) {
       alert(err);
@@ -188,6 +218,7 @@ export const UserMap = () => {
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
+    //toggle between different filters - all, electric bikes, available bikes?
   }, [filtered]);
 
   //call Mapbox Directions API
@@ -203,18 +234,28 @@ export const UserMap = () => {
 
   return (
     <div>
-      <div ref={(el) => (mapContainer.current = el)} style={styles} />
-      <button onClick={() => submit()}>Save</button>
-      {exroutes.map((exroute, i) => (
-        <div
-          key={i}
-          onClick={() => callDirAPI(exroute.origin, exroute.destination)}
-        >
-          origin: {exroute.origin[0]},{exroute.origin[1]}
-          <br></br>
-          destination: {exroute.destination[0]},{exroute.destination[1]}
-        </div>
-      ))}
+      <Sidebar>
+        <button onClick={() => submit()}>Save</button>
+        <button onClick={() => map.removeRoute()}>Remove Route</button>
+        {exroutes.map((exroute, i) => (
+          <li
+            key={i}
+            className="listItem"
+            onClick={() => callDirAPI(exroute.origin, exroute.destination)}
+          >
+            origin: {exroute.ostation_name}
+            <br></br>
+            destination: {exroute.dstation_name}
+          </li>
+        ))}
+      </Sidebar>
+      <div className="mapWrapper">
+        <div ref={(el) => (mapContainer.current = el)} style={styles} />
+      </div>
     </div>
   );
 };
+
+/*origin: {exroute.origin[0]},{exroute.origin[1]}
+            <br></br>
+            destination: {exroute.destination[0]},{exroute.destination[1]}*/

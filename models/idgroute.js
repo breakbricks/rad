@@ -48,12 +48,18 @@ const idgrouteSchema = new Schema({
   //auth0 identify users with: user_id
   //"user_id": "usr_5457edea1b8f33391a000004",
   //{identity provider id}|{unique id in the provider}
-  user_id: { type: String },
   date: {
     type: Date,
     default: Date.now,
   },
+  user_id: { type: String },
+  ostation_id: { type: Number },
+  ostation_name: { type: String },
+  ostation_address: { type: String },
   origin: { type: [Number] },
+  dstation_id: { type: Number },
+  dstation_name: { type: String },
+  dstation_address: { type: String },
   destination: { type: [Number] },
   /*
   //obj.routes[0].geometry.coordinates[0] ?
