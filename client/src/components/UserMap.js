@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Moment from "react-moment";
 
 import icon from "../assets/icon.png";
 import "../App.css";
@@ -6,10 +7,13 @@ import { Sidebar } from "./Sidebar";
 import { Profile } from "./Profile";
 
 import API from "../utils/API";
+import dirstyles from "../dirstyles.json";
 
 //core Mapbox
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+
+//import Auth0
 import { useAuth0 } from "@auth0/auth0-react";
 
 //import MapboxDirections
@@ -29,6 +33,8 @@ export const UserMap = () => {
   const { user } = useAuth0();
 
   const [map, setMap] = useState(null);
+  const [bfiltered, setbFiltered] = useState();
+  const [dfiltered, setdFiltered] = useState();
   const [filtered, setFiltered] = useState();
   //const [crashes, setCrashes] = useState();
   const mapContainer = useRef(null);
@@ -40,64 +46,7 @@ export const UserMap = () => {
   //https://github.com/mapbox/mapbox-gl-directions/blob/master/src/directions_style.js
   const directions = new MapboxDirections({
     accessToken: mapboxgl.accessToken,
-    styles: [
-      {
-        //alternate route line
-        id: "directions-route-line-alt",
-        type: "line",
-        source: "directions",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#df3a1a",
-          "line-width": 5,
-          "line-opacity": 0.75,
-        },
-        filter: [
-          "all",
-          ["in", "$type", "LineString"],
-          ["in", "route", "alternate"],
-        ],
-      },
-      {
-        id: "directions-route-line-casing",
-        type: "line",
-        source: "directions",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#c1c4cd",
-          "line-width": 12,
-        },
-        filter: [
-          "all",
-          ["in", "$type", "LineString"],
-          ["in", "route", "selected"],
-        ],
-      },
-      {
-        id: "directions-route-line",
-        type: "line",
-        source: "directions",
-        layout: {
-          "line-join": "round",
-          "line-cap": "butt",
-        },
-        paint: {
-          "line-color": "#df810b",
-          "line-width": 7,
-        },
-        filter: [
-          "all",
-          ["in", "$type", "LineString"],
-          ["in", "route", "selected"],
-        ],
-      },
-    ],
+    styles: dirstyles,
     unit: "metric",
     profile: "mapbox/cycling",
     countries: "us",
@@ -112,7 +61,7 @@ export const UserMap = () => {
     },
     placeholderOrigin: "Origin",
     placeholderDestination: "Destination",
-    alternatives: true,
+    alternatives: false,
   });
 
   const initializeMap = ({ setMap, mapContainer }) => {
@@ -137,6 +86,8 @@ export const UserMap = () => {
     geolocate.on("geolocate", () => {
       console.log("geolocated.");
     });
+
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }));
 
     //console.log(stations);
 
@@ -176,7 +127,7 @@ export const UserMap = () => {
       const flyToStation = (current) => {
         map.flyTo({
           center: current.geometry.coordinates,
-          zoom: 15,
+          zoom: 12,
         });
         setRoute((oldArray) => [...oldArray, current]);
       };
@@ -327,6 +278,10 @@ export const UserMap = () => {
       .then((res) => res.json())
       .then((data) => {
         //console.log(data);
+        //filter by bikes available
+
+        //filter by docks available
+
         //filter by electric bikes available
         setFiltered(
           data["features"].filter(
@@ -360,8 +315,6 @@ export const UserMap = () => {
       //https://docs.mapbox.com/mapbox-gl-js/example/geojson-line/
       //https://docs.mapbox.com/help/tutorials/getting-started-directions-api/
       const resdata = res.data.routes[0];
-      console.log(resdata.duration);
-      console.log(resdata.distance);
       const displayroute = resdata.geometry.coordinates;
       //console.log(displayroute);
       const geojson = {
@@ -373,6 +326,32 @@ export const UserMap = () => {
         },
       };
       console.log(geojson);
+
+      // Create a popup for the saved route <li>
+      const rpopup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+      });
+
+      //display distancee and duration information on hover
+      map.on("mouseenter", "displayroute", function (e) {
+        rpopup
+          .setLngLat(e.lngLat)
+          .setHTML(
+            ` <p> Duration: ${Math.floor(resdata.duration / 60)} min 
+                Distance: ${+(resdata.distance / 1000).toFixed(2)} km <p>`
+          )
+          .addTo(map);
+      });
+
+      map.on("mouseenter", "states-layer", function () {
+        map.getCanvas().style.cursor = "pointer";
+      });
+
+      map.on("mouseleave", "displayroute", function () {
+        map.getCanvas().style.cursor = "";
+        rpopup.remove();
+      });
 
       // if the route already exists on the map, reset it using setData
       if (map.getSource("displayroute")) {
@@ -399,10 +378,11 @@ export const UserMap = () => {
           },
           paint: {
             "line-color": "#3887be",
-            "line-width": 5,
+            "line-width": 7,
             "line-opacity": 0.75,
           },
         });
+        //
       }
     });
   };
@@ -411,9 +391,9 @@ export const UserMap = () => {
     <div>
       <Sidebar>
         <button onClick={() => submit()}>Save</button>
-        <button onClick={() => removeRoute()}>Remove</button>
-        <button onClick={() => toggleLayerM()}>Toggle markers</button>
-        <button onClick={() => toggleLayerR()}>Toggle routes</button>
+        <button onClick={() => removeRoute()}>Clear</button>
+        <button onClick={() => toggleLayerM()}>markers</button>
+        <button onClick={() => toggleLayerR()}>saved routes</button>
         {exroutes.map((exroute, i) => (
           <div>
             <li
@@ -424,6 +404,11 @@ export const UserMap = () => {
               FROM: {exroute.ostation_name}
               <br></br>
               TO: {exroute.dstation_name}
+              <br></br>
+              DATE:
+              <Moment format="DD MMM YYYY">{exroute.date}</Moment>
+              <br></br>
+              TIME: <Moment format="hh:mm A">{exroute.date}</Moment>
             </li>
             <button onClick={() => delRoute(exroute._id)}>del</button>
           </div>

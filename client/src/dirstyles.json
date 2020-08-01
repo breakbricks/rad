@@ -1,0 +1,57 @@
+[
+  {
+    "id": "directions-route-line-alt",
+    "type": "line",
+    "source": "directions",
+    "layout": {
+      "line-join": "round",
+      "line-cap": "round"
+    },
+    "paint": {
+      "line-color": "#df3a1a",
+      "line-width": 5,
+      "line-opacity": 0.75
+    },
+    "filter": [
+      "all",
+      ["in", "$type", "LineString"],
+      ["in", "route", "alternate"]
+    ]
+  },
+  {
+    "id": "directions-route-line-casing",
+    "type": "line",
+    "source": "directions",
+    "layout": {
+      "line-join": "round",
+      "line-cap": "round"
+    },
+    "paint": {
+      "line-color": "#c1c4cd",
+      "line-width": 12
+    },
+    "filter": [
+      "all",
+      ["in", "$type", "LineString"],
+      ["in", "route", "selected"]
+    ]
+  },
+  {
+    "id": "directions-route-line",
+    "type": "line",
+    "source": "directions",
+    "layout": {
+      "line-join": "round",
+      "line-cap": "butt"
+    },
+    "paint": {
+      "line-color": "#df810b",
+      "line-width": 7
+    },
+    "filter": [
+      "all",
+      ["in", "$type", "LineString"],
+      ["in", "route", "selected"]
+    ]
+  }
+]
