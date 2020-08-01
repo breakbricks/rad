@@ -36,7 +36,22 @@ export const UserMap = () => {
   const [route, setRoute] = useState([]);
   //existing/saved routes
   const [exroutes, setExRoutes] = useState([]);
-  const [clicked, setClicked] = useState();
+
+  const directions = new MapboxDirections({
+    accessToken: mapboxgl.accessToken,
+    unit: "metric",
+    profile: "mapbox/cycling",
+    countries: "us",
+    //limit geocoder with philadelphia bbox
+    geocoder: {
+      bbox: [-75.345858, 39.851572, -74.956187, 40.063682],
+    },
+    controls: {
+      inputs: true,
+      instructions: true,
+      profileSwitcher: false,
+    },
+  });
 
   const initializeMap = ({ setMap, mapContainer }) => {
     const map = new mapboxgl.Map({
@@ -44,14 +59,6 @@ export const UserMap = () => {
       style: "mapbox://styles/estheroids/ckcrt6ss80i1t1inpoxsfpjdm", // stylesheet location
       center: [-75.1652, 39.9526],
       zoom: 12,
-    });
-
-    const directions = new MapboxDirections({
-      accessToken: mapboxgl.accessToken,
-      unit: "metric",
-      profile: "mapbox/cycling",
-      countries: "us",
-      bbox: [-75.375687, 39.822419, -75.011422, 40.060638],
     });
 
     map.addControl(directions, "top-left");
@@ -184,9 +191,15 @@ export const UserMap = () => {
   };
 
   const removeRoute = () => {
-    console.log(map.getStyle().layers);
+    //removeRoutes()
+    //https://github.com/mapbox/mapbox-gl-directions/blob/master/API.md
+
+    directions.removeRoutes();
+    //map.removeControl(directions);
+
     // GET ALL THE LAYERS - find out which layer is the route
-    const layers = map.getStyle().layers;
+    console.log(map.getStyle().layers);
+    //const layers = map.getStyle().layers;
 
     //REMOVE layers associated with route
     /*layers.map((layer) =>
