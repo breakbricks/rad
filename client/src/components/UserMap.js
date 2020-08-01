@@ -32,7 +32,9 @@ export const UserMap = () => {
   const [filtered, setFiltered] = useState();
   //const [crashes, setCrashes] = useState();
   const mapContainer = useRef(null);
+  //route to save
   const [route, setRoute] = useState([]);
+  //existing/saved routes
   const [exroutes, setExRoutes] = useState([]);
 
   const initializeMap = ({ setMap, mapContainer }) => {
@@ -161,6 +163,16 @@ export const UserMap = () => {
     }
   }; */
 
+  const removeRoute = () => {
+    console.log(map.getStyle().layers);
+    // GET ALL THE LAYERS - find out which layer is the route
+    const layers = map.getStyle().layers;
+
+    //REMOVE layers associated with route
+    /*layers.map((layer) =>
+      layer.source === "directions" ? map.removeLayer(layer.id) : ""
+    );*/
+  };
   const submit = () => {
     console.log(route);
     try {
@@ -190,10 +202,13 @@ export const UserMap = () => {
   };
 
   useEffect(() => {
+    //get all routes in database with user_id: of user.email
+    //see utils/API.js and idgcontroller.js
     API.getAllRoutes({
       user_id: user.email,
     }).then((res) => {
       console.log(res.data);
+      //set existing routes [] to res.data
       setExRoutes(res.data);
     });
     fetch("https://kiosks.bicycletransit.workers.dev/phl/")
@@ -223,6 +238,7 @@ export const UserMap = () => {
 
   //call Mapbox Directions API
   const callDirAPI = (origin, destination) => {
+    // see API.js - takes in origin coordinates and destination coordinates
     API.searchRouteDir(
       `${origin[0]},${origin[1]}`,
       `${destination[0]},${destination[1]}`
@@ -231,21 +247,22 @@ export const UserMap = () => {
       console.log(res.data);
     });
   };
-
+  // removeRoute() - not sure how this works yet
+  // figure out how to display route on map after on click <li> (api call to mapbox directions API made, get back json result - figure out how to print)
   return (
     <div>
       <Sidebar>
         <button onClick={() => submit()}>Save</button>
-        <button onClick={() => map.removeRoute()}>Remove Route</button>
+        <button onClick={() => removeRoute()}>Remove</button>
         {exroutes.map((exroute, i) => (
           <li
             key={i}
             className="listItem"
             onClick={() => callDirAPI(exroute.origin, exroute.destination)}
           >
-            origin: {exroute.ostation_name}
+            FROM: {exroute.ostation_name}
             <br></br>
-            destination: {exroute.dstation_name}
+            TO: {exroute.dstation_name}
           </li>
         ))}
       </Sidebar>
