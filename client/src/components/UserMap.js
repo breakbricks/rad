@@ -33,9 +33,9 @@ export const UserMap = () => {
   const { user } = useAuth0();
 
   const [map, setMap] = useState(null);
-  const [bfiltered, setbFiltered] = useState();
-  const [dfiltered, setdFiltered] = useState();
-  const [filtered, setFiltered] = useState();
+  const [bfiltered, setBFiltered] = useState();
+  const [dfiltered, setDFiltered] = useState();
+  const [efiltered, setEFiltered] = useState();
   //const [crashes, setCrashes] = useState();
   const mapContainer = useRef(null);
   //route to save
@@ -95,6 +95,46 @@ export const UserMap = () => {
       setMap(map);
       map.resize();
 
+      //add ebikestations layer
+      map.addLayer({
+        id: "ebikestations",
+        type: "circle",
+        source: {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: efiltered,
+          },
+        },
+        layout: {
+          visibility: "none",
+        },
+        paint: {
+          "circle-radius": 8,
+          "circle-color": "rgba(55,148,179,1)",
+        },
+      });
+
+      //add docks available stations layer
+      map.addLayer({
+        id: "dstations",
+        type: "circle",
+        source: {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: dfiltered,
+          },
+        },
+        layout: {
+          visibility: "visible",
+        },
+        paint: {
+          "circle-radius": 8,
+          "circle-color": "#c8c700",
+        },
+      });
+
       map.loadImage(
         // 'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
         icon,
@@ -102,18 +142,18 @@ export const UserMap = () => {
           if (error) throw error;
           map.addImage("custom-marker", image);
 
-          //feed indego station geojson data here
+          //feed FILTERED indego station geojson data here
           map.addSource("points", {
             type: "geojson",
             data: {
               type: "FeatureCollection",
-              features: filtered,
+              features: bfiltered,
             },
           });
 
           // Add a symbol layer
           map.addLayer({
-            id: "indegostations",
+            id: "bikestations",
             type: "symbol",
             source: "points",
             layout: {
@@ -152,9 +192,9 @@ export const UserMap = () => {
       };
 
       map.on("click", function (e) {
-        // check if a feature in the "indegostations" layer exists
+        // check if a feature in the "bikestations" layer exists
         const features = map.queryRenderedFeatures(e.point, {
-          layers: ["indegostations"],
+          layers: ["bikestations", "ebikestations", "dstations"],
         });
 
         // if yes, then:
@@ -185,15 +225,35 @@ export const UserMap = () => {
     }
   }; */
 
-  //toggle indegostations markers layer
-  const toggleLayerM = () => {
-    const visibility = map.getLayoutProperty("indegostations", "visibility");
+  //toggle bikestations markers layer
+  const toggleLayerB = () => {
+    const visibility = map.getLayoutProperty("bikestations", "visibility");
     if (visibility === "visible") {
-      map.setLayoutProperty("indegostations", "visibility", "none");
+      map.setLayoutProperty("bikestations", "visibility", "none");
     } else {
-      map.setLayoutProperty("indegostations", "visibility", "visible");
+      map.setLayoutProperty("bikestations", "visibility", "visible");
     }
   };
+
+  const toggleLayerD = () => {
+    //console.log(map.getStyle().layers);
+    const visibility = map.getLayoutProperty("dstations", "visibility");
+    if (visibility === "none") {
+      map.setLayoutProperty("dstations", "visibility", "visible");
+    } else {
+      map.setLayoutProperty("dstations", "visibility", "none");
+    }
+  };
+
+  const toggleLayerE = () => {
+    const visibility = map.getLayoutProperty("ebikestations", "visibility");
+    if (visibility === "none") {
+      map.setLayoutProperty("ebikestations", "visibility", "visible");
+    } else {
+      map.setLayoutProperty("ebikestations", "visibility", "none");
+    }
+  };
+
   //toggle stations displayroute layer
   const toggleLayerR = () => {
     const visibility = map.getLayoutProperty("displayroute", "visibility");
@@ -212,7 +272,7 @@ export const UserMap = () => {
     //map.removeControl(directions);
 
     // GET ALL THE LAYERS - find out which layer is the route
-    console.log(map.getStyle().layers);
+    //console.log(map.getStyle().layers);
     //const layers = map.getStyle().layers;
 
     //REMOVE layers associated with route
@@ -279,11 +339,15 @@ export const UserMap = () => {
       .then((data) => {
         //console.log(data);
         //filter by bikes available
-
+        setBFiltered(
+          data["features"].filter((s) => s.properties.bikesAvailable > 0)
+        );
         //filter by docks available
-
+        setDFiltered(
+          data["features"].filter((s) => s.properties.docksAvailable > 0)
+        );
         //filter by electric bikes available
-        setFiltered(
+        setEFiltered(
           data["features"].filter(
             (s) => s.properties.electricBikesAvailable > 0
           )
@@ -300,8 +364,7 @@ export const UserMap = () => {
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
-    //toggle between different filters - all, electric bikes, available bikes?
-  }, [filtered]);
+  }, [bfiltered, efiltered]);
 
   //call Mapbox Directions API
   const callDirAPI = (origin, destination) => {
@@ -392,7 +455,9 @@ export const UserMap = () => {
       <Sidebar>
         <button onClick={() => submit()}>Save</button>
         <button onClick={() => removeRoute()}>Clear</button>
-        <button onClick={() => toggleLayerM()}>markers</button>
+        <button onClick={() => toggleLayerB()}>bikes</button>
+        <button onClick={() => toggleLayerD()}>docks</button>
+        <button onClick={() => toggleLayerE()}>ebikes</button>
         <button onClick={() => toggleLayerR()}>saved routes</button>
         {exroutes.map((exroute, i) => (
           <div>
