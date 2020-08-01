@@ -73,10 +73,10 @@ export const PublicMap = () => {
         setStations(data["features"]);
       });
 
-    fetch("/api/test")
+    /*fetch("/api/test")
       .then((response) => response.json())
       .then((res) => console.log(res))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err));*/
   }, []);
 
   useEffect(() => {

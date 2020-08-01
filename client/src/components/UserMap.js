@@ -36,6 +36,7 @@ export const UserMap = () => {
   const [route, setRoute] = useState([]);
   //existing/saved routes
   const [exroutes, setExRoutes] = useState([]);
+  const [clicked, setClicked] = useState();
 
   const initializeMap = ({ setMap, mapContainer }) => {
     const map = new mapboxgl.Map({
@@ -163,6 +164,25 @@ export const UserMap = () => {
     }
   }; */
 
+  //toggle indegostations markers layer
+  const toggleLayerM = () => {
+    const visibility = map.getLayoutProperty("indegostations", "visibility");
+    if (visibility === "visible") {
+      map.setLayoutProperty("indegostations", "visibility", "none");
+    } else {
+      map.setLayoutProperty("indegostations", "visibility", "visible");
+    }
+  };
+  //toggle stations displayroute layer
+  const toggleLayerR = () => {
+    const visibility = map.getLayoutProperty("displayroute", "visibility");
+    if (visibility === "visible") {
+      map.setLayoutProperty("displayroute", "visibility", "none");
+    } else {
+      map.setLayoutProperty("displayroute", "visibility", "visible");
+    }
+  };
+
   const removeRoute = () => {
     console.log(map.getStyle().layers);
     // GET ALL THE LAYERS - find out which layer is the route
@@ -225,10 +245,10 @@ export const UserMap = () => {
         //initializeMap({ setMap, mapContainer });
       });
     // if (!map) initializeMap({ setMap, mapContainer });
-    fetch("/api/test")
+    /*fetch("/api/test")
       .then((response) => response.json())
       .then((res) => console.log(res))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err));*/
   }, []);
 
   useEffect(() => {
@@ -245,6 +265,8 @@ export const UserMap = () => {
     ).then((res) => {
       //mapbox directions api result
       console.log(res.data);
+      //https://docs.mapbox.com/mapbox-gl-js/example/geojson-line/
+      //https://docs.mapbox.com/help/tutorials/getting-started-directions-api/
       const resdata = res.data.routes[0];
       const displayroute = resdata.geometry.coordinates;
       //console.log(displayroute);
@@ -263,7 +285,6 @@ export const UserMap = () => {
         map.getSource("displayroute").setData(geojson);
       } else {
         // otherwise, make a new request
-
         map.addLayer({
           id: "displayroute",
           type: "line",
@@ -298,6 +319,12 @@ export const UserMap = () => {
       <Sidebar>
         <button onClick={() => submit()}>Save</button>
         <button onClick={() => removeRoute()}>Remove</button>
+        <button clicked="false" onClick={() => toggleLayerM()}>
+          Toggle markers
+        </button>
+        <button clicked="false" onClick={() => toggleLayerR()}>
+          Toggle routes
+        </button>
         {exroutes.map((exroute, i) => (
           <li
             key={i}
@@ -312,6 +339,8 @@ export const UserMap = () => {
       </Sidebar>
       <div className="mapWrapper">
         <div ref={(el) => (mapContainer.current = el)} style={styles} />
+        <nav id="menu"></nav>
+        <div id="map"></div>
       </div>
     </div>
   );
