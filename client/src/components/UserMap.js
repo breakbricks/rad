@@ -245,6 +245,50 @@ export const UserMap = () => {
     ).then((res) => {
       //mapbox directions api result
       console.log(res.data);
+      const resdata = res.data.routes[0];
+      const displayroute = resdata.geometry.coordinates;
+      //console.log(displayroute);
+      const geojson = {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "LineString",
+          coordinates: displayroute,
+        },
+      };
+      console.log(geojson);
+
+      // if the route already exists on the map, reset it using setData
+      if (map.getSource("displayroute")) {
+        map.getSource("displayroute").setData(geojson);
+      } else {
+        // otherwise, make a new request
+
+        map.addLayer({
+          id: "displayroute",
+          type: "line",
+          source: {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "LineString",
+                coordinates: displayroute,
+              },
+            },
+          },
+          layout: {
+            "line-join": "round",
+            "line-cap": "round",
+          },
+          paint: {
+            "line-color": "#3887be",
+            "line-width": 5,
+            "line-opacity": 0.75,
+          },
+        });
+      }
     });
   };
   // removeRoute() - not sure how this works yet
