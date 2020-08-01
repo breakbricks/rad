@@ -10,9 +10,6 @@ export default {
   //string userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
   //https://community.auth0.com/t/how-to-get-user-id-and-use-to-consume-endpoint/37766
   //see Profile.js - get accessToken?
-  getLoggedInUserID: function () {},
-
-  saveCurrentUserID: function () {},
 
   // directions api - search coords
   // https://docs.mapbox.com/api/navigation/#directions
@@ -43,8 +40,8 @@ export default {
     return axios.post("/api/idg/getroutes/", data);
   },
   // delete route from database under user_id
-  deleteRoute: function (user_id, id) {
-    return axios.delete("/api/idg/" + user_id + "/" + id);
+  deleteRoute: function (id) {
+    return axios.delete("/api/idg/getroutes/" + id);
   },
 };
 

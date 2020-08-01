@@ -37,8 +37,67 @@ export const UserMap = () => {
   //existing/saved routes
   const [exroutes, setExRoutes] = useState([]);
 
+  //https://github.com/mapbox/mapbox-gl-directions/blob/master/src/directions_style.js
   const directions = new MapboxDirections({
     accessToken: mapboxgl.accessToken,
+    styles: [
+      {
+        //alternate route line
+        id: "directions-route-line-alt",
+        type: "line",
+        source: "directions",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#df3a1a",
+          "line-width": 5,
+          "line-opacity": 0.75,
+        },
+        filter: [
+          "all",
+          ["in", "$type", "LineString"],
+          ["in", "route", "alternate"],
+        ],
+      },
+      {
+        id: "directions-route-line-casing",
+        type: "line",
+        source: "directions",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#c1c4cd",
+          "line-width": 12,
+        },
+        filter: [
+          "all",
+          ["in", "$type", "LineString"],
+          ["in", "route", "selected"],
+        ],
+      },
+      {
+        id: "directions-route-line",
+        type: "line",
+        source: "directions",
+        layout: {
+          "line-join": "round",
+          "line-cap": "butt",
+        },
+        paint: {
+          "line-color": "#df810b",
+          "line-width": 7,
+        },
+        filter: [
+          "all",
+          ["in", "$type", "LineString"],
+          ["in", "route", "selected"],
+        ],
+      },
+    ],
     unit: "metric",
     profile: "mapbox/cycling",
     countries: "us",
@@ -49,14 +108,18 @@ export const UserMap = () => {
     controls: {
       inputs: true,
       instructions: true,
-      profileSwitcher: false,
+      profileSwitcher: true,
     },
+    placeholderOrigin: "Origin",
+    placeholderDestination: "Destination",
+    alternatives: true,
   });
 
   const initializeMap = ({ setMap, mapContainer }) => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/estheroids/ckcrt6ss80i1t1inpoxsfpjdm", // stylesheet location
+      //style: "mapbox://styles/estheroids/ckcrt6ss80i1t1inpoxsfpjdm", // stylesheet location
+      style: "mapbox://styles/mapbox/light-v10",
       center: [-75.1652, 39.9526],
       zoom: 12,
     });
@@ -234,6 +297,22 @@ export const UserMap = () => {
     }
   };
 
+  const delRoute = (id) => {
+    API.deleteRoute(id)
+      .then((res) => {
+        console.log(res.data);
+        console.log("deleted");
+        API.getAllRoutes({
+          user_id: user.email,
+        }).then((res) => {
+          console.log(res.data);
+          //set existing routes [] to res.data
+          setExRoutes(res.data);
+        });
+      })
+      .catch((err) => console.log(err));
+  };
+
   useEffect(() => {
     //get all routes in database with user_id: of user.email
     //see utils/API.js and idgcontroller.js
@@ -281,6 +360,8 @@ export const UserMap = () => {
       //https://docs.mapbox.com/mapbox-gl-js/example/geojson-line/
       //https://docs.mapbox.com/help/tutorials/getting-started-directions-api/
       const resdata = res.data.routes[0];
+      console.log(resdata.duration);
+      console.log(resdata.distance);
       const displayroute = resdata.geometry.coordinates;
       //console.log(displayroute);
       const geojson = {
@@ -325,35 +406,31 @@ export const UserMap = () => {
       }
     });
   };
-  // removeRoute() - not sure how this works yet
-  // figure out how to display route on map after on click <li> (api call to mapbox directions API made, get back json result - figure out how to print)
+
   return (
     <div>
       <Sidebar>
         <button onClick={() => submit()}>Save</button>
         <button onClick={() => removeRoute()}>Remove</button>
-        <button clicked="false" onClick={() => toggleLayerM()}>
-          Toggle markers
-        </button>
-        <button clicked="false" onClick={() => toggleLayerR()}>
-          Toggle routes
-        </button>
+        <button onClick={() => toggleLayerM()}>Toggle markers</button>
+        <button onClick={() => toggleLayerR()}>Toggle routes</button>
         {exroutes.map((exroute, i) => (
-          <li
-            key={i}
-            className="listItem"
-            onClick={() => callDirAPI(exroute.origin, exroute.destination)}
-          >
-            FROM: {exroute.ostation_name}
-            <br></br>
-            TO: {exroute.dstation_name}
-          </li>
+          <div>
+            <li
+              key={i}
+              className="listItem"
+              onClick={() => callDirAPI(exroute.origin, exroute.destination)}
+            >
+              FROM: {exroute.ostation_name}
+              <br></br>
+              TO: {exroute.dstation_name}
+            </li>
+            <button onClick={() => delRoute(exroute._id)}>del</button>
+          </div>
         ))}
       </Sidebar>
       <div className="mapWrapper">
         <div ref={(el) => (mapContainer.current = el)} style={styles} />
-        <nav id="menu"></nav>
-        <div id="map"></div>
       </div>
     </div>
   );
