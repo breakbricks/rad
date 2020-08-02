@@ -9,6 +9,10 @@ import { Profile } from "./Profile";
 import API from "../utils/API";
 import dirstyles from "../dirstyles.json";
 
+//https://www.npmjs.com/package/@turf/bearing
+import turf from "@turf/turf";
+import bearing from "@turf/bearing";
+
 //core Mapbox
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -111,7 +115,7 @@ export const UserMap = () => {
           },
         },
         layout: {
-          visibility: "visible",
+          visibility: "none",
         },
         paint: {
           "circle-radius": [
@@ -146,7 +150,7 @@ export const UserMap = () => {
 
       //======bike lane layer========/
       //https://www.opendataphilly.org/dataset/bike-network/resource/8f30d7e4-127a-4cc0-9df3-6db7bcca41be
-      /*
+
       map.addLayer({
         id: "bikelanes",
         type: "line",
@@ -167,7 +171,7 @@ export const UserMap = () => {
           "line-color": "#877b59",
           "line-width": 1,
         },
-      }); */
+      });
 
       //add ebikestations layer
       map.addLayer({
@@ -303,8 +307,18 @@ export const UserMap = () => {
     }
   };
 
+  const toggleLayerCol = () => {
+    // collisions
+    const visibility = map.getLayoutProperty("collisions", "visibility");
+    if (visibility === "none") {
+      map.setLayoutProperty("collisions", "visibility", "visible");
+    } else {
+      map.setLayoutProperty("collisions", "visibility", "none");
+    }
+  };
+
   const toggleLayerE = () => {
-    console.log(map.getStyle().layers);
+    // console.log(map.getStyle().layers);
     const visibility = map.getLayoutProperty("ebikestations", "visibility");
     if (visibility === "none") {
       map.setLayoutProperty("ebikestations", "visibility", "visible");
@@ -475,7 +489,6 @@ export const UserMap = () => {
       })
       .catch((err) => console.log(err));
 
-    // if (!map) initializeMap({ setMap, mapContainer });
     /*fetch("/api/test")
       .then((response) => response.json())
       .then((res) => console.log(res))
@@ -498,10 +511,13 @@ export const UserMap = () => {
       //https://docs.mapbox.com/mapbox-gl-js/example/geojson-line/
       //https://docs.mapbox.com/help/tutorials/getting-started-directions-api/
       const resdata = res.data.routes[0];
+      const origin = res.data.waypoints[0].location;
+      const destination = res.data.waypoints[1].location;
 
       //resdata.legs[0].steps[i].maneuver.instruction //"Head south on North Broad Street (PA 611)"
       //modal?
       const displayroute = resdata.geometry.coordinates;
+
       //console.log(displayroute);
       const geojson = {
         type: "Feature",
@@ -568,8 +584,74 @@ export const UserMap = () => {
             "line-opacity": 0.75,
           },
         });
-        //
       }
+
+      // Used to increment the value of the point measurement against the route.
+      let counter = 0;
+
+      const steps = 500;
+
+      //origin point
+      const opoint = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "Point",
+              coordinates: origin,
+            },
+          },
+        ],
+      };
+
+      map.addSource("opoint", {
+        type: "geojson",
+        data: opoint,
+      });
+
+      //https://map.michelstuyts.be/icons/
+      map.addLayer({
+        id: "opoint",
+        source: "opoint",
+        type: "symbol",
+        layout: {
+          "icon-image": "bicycle-15",
+          "icon-ignore-placement": true,
+        },
+      });
+
+      //dest point
+      const dpoint = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "Point",
+              coordinates: destination,
+            },
+          },
+        ],
+      };
+
+      map.addSource("dpoint", {
+        type: "geojson",
+        data: dpoint,
+      });
+
+      //https://map.michelstuyts.be/icons/
+      map.addLayer({
+        id: "dpoint",
+        source: "dpoint",
+        type: "symbol",
+        layout: {
+          "icon-image": "bicycle-15",
+          "icon-ignore-placement": true,
+        },
+      });
     });
   };
 
@@ -583,6 +665,7 @@ export const UserMap = () => {
         <button onClick={() => toggleLayerE()}>ebikes</button>
         <button onClick={() => toggleLayerR()}>saved routes</button>
         <button onClick={() => toggleLayerBL()}>bike lanes</button>
+        <button onClick={() => toggleLayerCol()}>collisions</button>
         {exroutes.map((exroute, i) => (
           <div>
             <li

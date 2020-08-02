@@ -19,8 +19,12 @@
     "nodemon": "^1.18.7"
   },
   "dependencies": {
+    "@mapbox/maki": "^6.2.0",
+    "@turf/distance": "^6.0.1",
+    "@turf/turf": "^5.1.6",
     "express": "^4.16.3",
     "if-env": "^1.0.4",
+    "maki": "^2.1.0",
     "moment": "^2.27.0",
     "mongoose": "^5.9.25",
     "react-moment": "^0.9.7"
