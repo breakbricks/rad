@@ -36,7 +36,8 @@ export const UserMap = () => {
   const [bfiltered, setBFiltered] = useState();
   const [dfiltered, setDFiltered] = useState();
   const [efiltered, setEFiltered] = useState();
-  //const [crashes, setCrashes] = useState();
+  const [lanes, setLanes] = useState();
+  const [crashes, setCrashes] = useState();
   const mapContainer = useRef(null);
   //route to save
   const [route, setRoute] = useState([]);
@@ -95,6 +96,34 @@ export const UserMap = () => {
       setMap(map);
       map.resize();
 
+      //console.log(efiltered);
+      //console.log(lanes);
+
+      //bike lane layer
+      //https://www.opendataphilly.org/dataset/bike-network/resource/8f30d7e4-127a-4cc0-9df3-6db7bcca41be
+
+      map.addLayer({
+        id: "bikelanes",
+        type: "line",
+        source: {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: lanes,
+          },
+        },
+        layout: {
+          // make layer visible by default
+          visibility: "visible",
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#877b59",
+          "line-width": 1,
+        },
+      });
+
       //add ebikestations layer
       map.addLayer({
         id: "ebikestations",
@@ -127,7 +156,7 @@ export const UserMap = () => {
           },
         },
         layout: {
-          visibility: "visible",
+          visibility: "none",
         },
         paint: {
           "circle-radius": 8,
@@ -209,22 +238,6 @@ export const UserMap = () => {
     });
   };
 
-  /*
-  //https://github.com/mapbox/mapbox-gl-directions/blob/master/API.md
-  //To remove the route from the map, use removeRoute().
-  //removeRoute() - Remove the route line from the map style.
-  // remove the layer if it exists
-
-  const removeRoute = () => {
-    if (map.getSource("route")) {
-      map.removeLayer("route");
-      map.removeSource("route");
-      document.getElementById("calculated-line").innerHTML = "";
-    } else {
-      return;
-    }
-  }; */
-
   //toggle bikestations markers layer
   const toggleLayerB = () => {
     const visibility = map.getLayoutProperty("bikestations", "visibility");
@@ -261,6 +274,16 @@ export const UserMap = () => {
       map.setLayoutProperty("displayroute", "visibility", "none");
     } else {
       map.setLayoutProperty("displayroute", "visibility", "visible");
+    }
+  };
+
+  //toggle bike lanes layer
+  const toggleLayerBL = () => {
+    const visibility = map.getLayoutProperty("bikelanes", "visibility");
+    if (visibility === "visible") {
+      map.setLayoutProperty("bikelanes", "visibility", "none");
+    } else {
+      map.setLayoutProperty("bikelanes", "visibility", "visible");
     }
   };
 
@@ -355,6 +378,31 @@ export const UserMap = () => {
         //console.log(stations);
         //initializeMap({ setMap, mapContainer });
       });
+
+    //bike lanes
+    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const url =
+      "http://data.phl.opendata.arcgis.com/datasets/b5f660b9f0f44ced915995b6d49f6385_0.geojson";
+    fetch(proxyurl + url)
+      .then((res) => res.json())
+      .then((data) => {
+        setLanes(data.features);
+      })
+      .catch((err) => console.log(err));
+
+    //crashes involving bikes
+    //https://www.opendataphilly.org/dataset/vehicular-crash-data
+    //https://cityofphiladelphia.github.io/carto-api-explorer/#crash_data_collision_crash_2007_2017
+    const crashurl =
+      "https://phl.carto.com/api/v2/sql?q=SELECT%20*%20FROM%20crash_data_collision_crash_2007_2017%20WHERE%20bicycle_maj_inj_count%3E=1%20OR%20bicycle_death_count%20%3E=1";
+
+    fetch(proxyurl + crashurl)
+      .then((res) => res.json())
+      .then((data) => {
+        setCrashes(data.rows);
+      })
+      .catch((err) => console.log(err));
+
     // if (!map) initializeMap({ setMap, mapContainer });
     /*fetch("/api/test")
       .then((response) => response.json())
@@ -364,7 +412,7 @@ export const UserMap = () => {
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
-  }, [bfiltered, efiltered]);
+  }, [bfiltered, efiltered, lanes]);
 
   //call Mapbox Directions API
   const callDirAPI = (origin, destination) => {
@@ -378,6 +426,9 @@ export const UserMap = () => {
       //https://docs.mapbox.com/mapbox-gl-js/example/geojson-line/
       //https://docs.mapbox.com/help/tutorials/getting-started-directions-api/
       const resdata = res.data.routes[0];
+
+      //resdata.legs[0].steps[i].maneuver.instruction //"Head south on North Broad Street (PA 611)"
+      //modal?
       const displayroute = resdata.geometry.coordinates;
       //console.log(displayroute);
       const geojson = {
@@ -388,7 +439,7 @@ export const UserMap = () => {
           coordinates: displayroute,
         },
       };
-      console.log(geojson);
+      // console.log(geojson);
 
       // Create a popup for the saved route <li>
       const rpopup = new mapboxgl.Popup({
@@ -459,6 +510,7 @@ export const UserMap = () => {
         <button onClick={() => toggleLayerD()}>docks</button>
         <button onClick={() => toggleLayerE()}>ebikes</button>
         <button onClick={() => toggleLayerR()}>saved routes</button>
+        <button onClick={() => toggleLayerBL()}>bike lanes</button>
         {exroutes.map((exroute, i) => (
           <div>
             <li
