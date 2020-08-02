@@ -99,9 +99,54 @@ export const UserMap = () => {
       //console.log(efiltered);
       //console.log(lanes);
 
-      //bike lane layer
-      //https://www.opendataphilly.org/dataset/bike-network/resource/8f30d7e4-127a-4cc0-9df3-6db7bcca41be
+      //=====collisions data layer======/
+      map.addLayer({
+        id: "collisions",
+        type: "circle",
+        source: {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: crashes,
+          },
+        },
+        layout: {
+          visibility: "visible",
+        },
+        paint: {
+          "circle-radius": [
+            "interpolate",
+            ["linear"],
+            ["number", ["get", "tot_inj_count"]],
+            0,
+            4,
+            5,
+            24,
+          ],
+          "circle-color": [
+            "interpolate",
+            ["linear"],
+            ["number", ["get", "tot_inj_count"]],
+            0,
+            "#2DC4B2",
+            1,
+            "#3BB3C3",
+            2,
+            "#669EC4",
+            3,
+            "#8B88B6",
+            4,
+            "#A2719B",
+            5,
+            "#AA5E79",
+          ],
+          "circle-opacity": 0.8,
+        },
+      });
 
+      //======bike lane layer========/
+      //https://www.opendataphilly.org/dataset/bike-network/resource/8f30d7e4-127a-4cc0-9df3-6db7bcca41be
+      /*
       map.addLayer({
         id: "bikelanes",
         type: "line",
@@ -122,7 +167,7 @@ export const UserMap = () => {
           "line-color": "#877b59",
           "line-width": 1,
         },
-      });
+      }); */
 
       //add ebikestations layer
       map.addLayer({
@@ -259,6 +304,7 @@ export const UserMap = () => {
   };
 
   const toggleLayerE = () => {
+    console.log(map.getStyle().layers);
     const visibility = map.getLayoutProperty("ebikestations", "visibility");
     if (visibility === "none") {
       map.setLayoutProperty("ebikestations", "visibility", "visible");
@@ -399,7 +445,33 @@ export const UserMap = () => {
     fetch(proxyurl + crashurl)
       .then((res) => res.json())
       .then((data) => {
-        setCrashes(data.rows);
+        const crashdata = data.rows;
+        //console.log(crashdata);
+        const newcrashdata = crashdata.map((obj) => ({
+          ...obj,
+          properties: {
+            tot_inj_count: obj.tot_inj_count,
+            bicycle_count: obj.bicycle_count,
+            person_count: obj.person_count,
+            collision_type: obj.collision_type,
+          },
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [obj.dec_long, obj.dec_lat],
+          },
+        }));
+        console.log(newcrashdata);
+        setCrashes(newcrashdata);
+
+        //for each object in the array, add property of geometry
+        /* type: "Feature",
+    geometry: {
+        coordinates: [-75, 39],
+        type: "Point"
+    }
+    [dec_long, dec_lat]
+    */
       })
       .catch((err) => console.log(err));
 
@@ -412,7 +484,7 @@ export const UserMap = () => {
 
   useEffect(() => {
     initializeMap({ setMap, mapContainer });
-  }, [bfiltered, efiltered, lanes]);
+  }, [bfiltered, efiltered, lanes, crashes]);
 
   //call Mapbox Directions API
   const callDirAPI = (origin, destination) => {
